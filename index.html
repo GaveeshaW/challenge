@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mistress's Mystery Wheel ♡</title>
+<style>
+:root{font-family:system-ui,Arial,sans-serif;color:#ffe6f1;background:#180f24}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#512846,#180f24 75%);padding:25px 14px;text-align:center}.wrap{max-width:540px;margin:auto}h1{color:#ffb7d8;font-size:clamp(28px,7vw,43px);margin:8px 0}.tag{color:#ff9cc9;letter-spacing:3px;font-size:12px}.intro{color:#e7c1d8;line-height:1.6}.wheelbox{position:relative;width:min(90vw,410px);aspect-ratio:1;margin:27px auto}canvas{width:100%;height:100%;border-radius:50%;border:8px solid #ffd0e5;box-shadow:0 0 40px #f6599b66;display:block}.pointer{position:absolute;z-index:4;top:-10px;left:50%;transform:translateX(-50%);border-left:18px solid transparent;border-right:18px solid transparent;border-top:36px solid white}.heart{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:64px;height:64px;border:4px solid #ffd0e5;background:#2a1838;border-radius:50%;display:grid;place-items:center;font-size:30px}button{border:0;border-radius:99px;background:linear-gradient(120deg,#ff9ac8,#ed579b);color:#271127;padding:15px 28px;font-size:16px;font-weight:800;cursor:pointer}button:disabled{opacity:.5;cursor:default}.panel{background:#ffffff0b;border:1px solid #ffb8d74a;border-radius:20px;padding:20px;margin:18px 0}.dots{display:flex;justify-content:center;gap:12px;margin:14px}.dot{width:42px;height:42px;border-radius:50%;border:2px solid #8c527a;display:grid;place-items:center}.dot.done{background:#ff8cbe;color:#251329}.diary{display:grid;gap:10px}.item{padding:14px;border-radius:12px;color:#241528;text-align:left}.item strong{display:block;margin-bottom:7px}.item p{font-size:14px;line-height:1.6;margin:0}.muted{color:#e3b7d0}.note{font-size:13px;color:#dfb2cd;line-height:1.6}.overlay{position:fixed;inset:0;background:#160d22f7;display:grid;place-items:center;z-index:9;padding:18px}.modal{max-width:420px;background:#39203e;border:2px solid #ff8abb;border-radius:24px;padding:27px;line-height:1.7}.hide{display:none!important}.confetti{position:fixed;top:-20px;pointer-events:none;animation:fall 3s linear forwards;z-index:15}@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}#playAgain{margin-top:15px;background:transparent;color:#ffc6df;border:1px solid #ffc6df}#landed{min-height:30px}.prize-reveal{background:linear-gradient(135deg,#512846,#321c3e);border:2px solid #ff9ac8;border-radius:18px;padding:18px;margin:15px 0;animation:popIn .5s ease}.prize-reveal h2{color:#ffb7d8;font-size:22px;margin:0 0 12px}.prize-reveal p{color:#ffe6f1;font-size:15px;line-height:1.7;margin:0}@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="tag">THE PRIVATE PLAYROOM</div>
+<h1>Mistress's Mystery Wheel ♡</h1>
+<p class="intro">Puppy, you get exactly three spins. 🔒 All eight prizes are secret.<br><br><b>Only the prize your pointer lands on will be revealed</b> — along with Mistress's special instructions.<br><br>Every prize is for Mistress. 😈</p>
+<div class="wheelbox"><div class="pointer"></div><canvas id="wheel" width="640" height="640" aria-label="Eight-colour mystery prize wheel"></canvas><div class="heart">♡</div></div>
+<button id="spin">SPIN FOR MISTRESS ♡</button>
+<section class="panel"><h3 id="progress">0 / 3 spins completed</h3><div class="dots" id="dots"></div><div id="landed" aria-live="polite"></div><p id="message" class="muted">The mystery stays hidden until the wheel lands, Puppy. ♡</p></section>
+<section class="panel"><h3>♡ Puppy's Prize Diary ♡</h3><p class="note">Only prizes you've actually landed on appear here, together with Mistress's instructions. Progress stays saved in this browser.</p><div class="diary" id="diary"></div><button id="playAgain" class="hide">PLAY AGAIN ♡</button></section>
+<p class="note">This page locks only the game reveal, not your device. Browser storage can be cleared manually.</p>
+</main>
+<div class="overlay" id="intro"><div class="modal"><h2>🔒 Puppy, the prizes are SECRET!</h2><p>Mistress has hidden all eight rewards.<br><br>Spin <b>THREE TIMES</b>. Each spin reveals only the prize you land on, with its instructions.<br><br>No duplicates. No sneaky peeks. Every reward belongs to Mistress. 😈♡</p><button id="enter">I UNDERSTAND, MISTRESS ♡</button></div></div>
+<script>
+'use strict';
+// Edit prize names and descriptions here. Keep food prizes at indices 0 and 1,
+// or update FOOD_INDICES below to match their new positions.
+const prizes = [
+ {name:'🍣 Sushi for Mistress',description:'Puppy owes Mistress a delicious sushi treat! Mistress gets to choose exactly what she wants. 🍣💕',color:'#ff4d8d'},
+ {name:'🍩 Donuts for Mistress',description:'Puppy must spoil Mistress with her favourite donuts. She gets to pick the flavours, of course! 🍩',color:'#ff9a5b'},
+ {name:'🪞 Wild Mirror Selfie Pose',description:'Puppy must take a cheeky, dramatic mirror selfie in a pose chosen by Mistress. No boring selfies allowed! 😈',color:'#f9d75e'},
+ {name:'🐾 Video Begging on All Fours',description:'Puppy must get on all fours and record a dramatic 30-second video begging Mistress for her attention. Make it convincing, Puppy! 🐾',color:'#70d7a5'},
+ {name:'🍽️ Puppy-Style Snack Challenge',description:'Puppy must eat a safe snack from a clean plate, puppy-style, and send Mistress a funny video. 🐶',color:'#58c5e8'},
+ {name:'💌 10 Reasons She’s Your Mistress',description:'Puppy must record himself explaining ten reasons why Mistress is absolutely irresistible. No repeating reasons! 💋',color:'#8d85ed'},
+ {name:'👑 Private Puppy Devotion Video',description:'Puppy must record a short erotic video touching his dirty dick so sneakily without getting caught in front of people at puppys house. 👑',color:'#cf73da'},
+ {name:'😈 Ultimate Puppy Fitness Challenge',description:'Puppy must complete 20 squats, a 60-second plank, and finish with a dramatic bow for Mistress. 💪',color:'#f079a6'}
+];
+const FOOD_INDICES = [0,1];
+const KEY = 'mistress_mystery_wheel_v4';
+const $ = id => document.getElementById(id);
+const canvas = $('wheel');
+const ctx = canvas.getContext('2d');
+let history = [], rotation = 0, spinning = false;
+try {
+ const stored = JSON.parse(localStorage.getItem(KEY));
+ if (Array.isArray(stored) && stored.length <= 3 && stored.every((n,i) => Number.isInteger(n) && n >= 0 && n < prizes.length && stored.indexOf(n) === i) && stored.filter(n => FOOD_INDICES.includes(n)).length <= 1) history = stored;
+} catch (e) { history = []; }
+function save(){try{localStorage.setItem(KEY,JSON.stringify(history));}catch(e){console.warn('Progress could not be saved.',e);}}
+function rand(n){if(window.crypto && crypto.getRandomValues){const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n;}return Math.floor(Math.random()*n);}
+function draw(){const slice=Math.PI*2/prizes.length,c=320,r=306;ctx.clearRect(0,0,640,640);prizes.forEach((p,i)=>{const start=-Math.PI/2+i*slice;ctx.beginPath();ctx.moveTo(c,c);ctx.arc(c,c,r,start,start+slice);ctx.closePath();ctx.fillStyle=p.color;ctx.fill();ctx.strokeStyle='#291a35';ctx.lineWidth=4;ctx.stroke();ctx.save();ctx.translate(c,c);ctx.rotate(start+slice/2);ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 25px system-ui';ctx.fillStyle='#26162b';ctx.fillText('MYSTERY '+(i+1),196,0);ctx.restore();});}
+function showPrize(index){const p=prizes[index],card=document.createElement('div'),title=document.createElement('h2'),desc=document.createElement('p');card.className='prize-reveal';title.textContent='🎉 '+p.name;desc.textContent=p.description;card.append(title,desc);$('landed').replaceChildren(card);}
+function render(){const count=history.length;$('progress').textContent=count+' / 3 spins completed';$('dots').replaceChildren();for(let i=0;i<3;i++){const d=document.createElement('div');d.className='dot'+(i<count?' done':'');d.textContent=i<count?'♡':i+1;$('dots').append(d);}$('diary').replaceChildren();history.forEach((n,i)=>{const p=prizes[n],el=document.createElement('div'),title=document.createElement('strong'),desc=document.createElement('p');el.className='item';el.style.background=p.color;title.textContent='Spin '+(i+1)+': '+p.name;desc.textContent=p.description;el.append(title,desc);$('diary').append(el);});$('spin').disabled=spinning||count===3;$('spin').textContent=count===3?'THREE SPINS COMPLETE ♡':'SPIN FOR MISTRESS ♡';$('playAgain').classList.toggle('hide',count!==3);}
+function celebrate(){for(let i=0;i<60;i++){const x=document.createElement('span');x.className='confetti';x.textContent=['♡','♥','✦'][i%3];x.style.left=rand(100)+'vw';x.style.fontSize=(12+rand(20))+'px';x.style.animationDelay=(rand(150)/100)+'s';document.body.append(x);setTimeout(()=>x.remove(),5000);}}
+function spin(){if(spinning||history.length>=3)return;spinning=true;$('landed').replaceChildren();$('message').textContent='Round and round, Puppy... Mistress is choosing your fate. 😈';render();
+ let available=prizes.map((_,i)=>i).filter(i=>!history.includes(i));
+ const foodAlreadyWon=history.some(i=>FOOD_INDICES.includes(i));
+ // After winning one food prize, exclude the other for this round.
+ if(foodAlreadyWon) available=available.filter(i=>!FOOD_INDICES.includes(i));
+ // If neither food prize was won in spins 1 and 2, force exactly one on spin 3.
+ else if(history.length===2) available=available.filter(i=>FOOD_INDICES.includes(i));
+ const chosen=available[rand(available.length)];
+ // Slice centers are fixed. Rotate the selected center to the top pointer.
+ const sliceDeg=360/prizes.length;
+ const target=(360-(chosen+.5)*sliceDeg)%360;
+ const current=((rotation%360)+360)%360;
+ rotation+=360*6+(target-current+360)%360;
+ canvas.style.transition='transform 5s cubic-bezier(.12,.72,.12,1)';
+ canvas.style.transform='rotate('+rotation+'deg)';
+ setTimeout(()=>{history.push(chosen);save();spinning=false;showPrize(chosen);$('message').textContent=history.length===3?'All three prizes revealed! Good Puppy. Mistress approves. ♡':'Mistress saved that prize. '+(3-history.length)+' more spin(s), Puppy! ♡';render();if(history.length===3)celebrate();},5100);
+}
+$('enter').addEventListener('click',()=>{$('intro').classList.add('hide');if(history.length){showPrize(history[history.length-1]);$('message').textContent=history.length===3?'All three prizes revealed! Good Puppy. Mistress approves. ♡':'Your previous spins have been saved, Puppy. ♡';}});
+$('spin').addEventListener('click',spin);
+$('playAgain').addEventListener('click',()=>{if(spinning)return;if(!confirm('Start a new round? This clears the current three results on this browser.'))return;history=[];save();rotation=0;canvas.style.transition='none';canvas.style.transform='rotate(0deg)';$('landed').replaceChildren();$('message').textContent='A fresh round, Puppy. The mysteries are waiting. ♡';render();});
+draw();render();
+</script>
+</body>
+</html>
